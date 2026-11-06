@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR.SOCIAL — Assigned Orders</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1120;--panel:#121c2e;--panel2:#18243a;--line:#263650;--muted:#91a2bc;--text:#edf3ff;--blue:#65a7ff;--green:#36d399;--amber:#f6c65b;--red:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#172746 0,transparent 32%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:28px 20px 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:30px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.4px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#3989ff,#7c5cff);display:grid;place-items:center;font-size:20px}
+.tag{font-size:12px;color:#a9c9ff;border:1px solid #34517c;padding:5px 10px;border-radius:99px}
+h1{font-size:clamp(25px,4vw,34px);margin:0 0 5px} .sub{color:var(--muted);margin:0}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:650}.btn.primary{background:#286bd0;border-color:#286bd0}.btn:hover{filter:brightness(1.13)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}
+.card,.panel{background:linear-gradient(180deg,#142039,#111a2b);border:1px solid var(--line);border-radius:16px}
+.card{padding:17px}.label{color:var(--muted);font-size:13px}.num{font-size:29px;font-weight:800;margin-top:5px}.num.blue{color:var(--blue)}.num.green{color:var(--green)}.num.amber{color:var(--amber)}
+.panel{padding:18px}.panelhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:15px}.panel h2{font-size:18px;margin:0}
+.filters{display:flex;gap:10px;flex-wrap:wrap}.field{background:#0d1728;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;min-width:160px;outline:none}.field:focus{border-color:var(--blue)}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:700px}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid #22314a}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}td{font-size:14px}.id{font-weight:750;color:#cfe1ff}.status{display:inline-flex;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:700;background:#25334b;color:#cbd8ed}.status.assigned{background:#123b34;color:#6ee7bd}.status.pending{background:#49391b;color:#ffda82}.status.processing{background:#19375b;color:#8fc5ff}.status.completed{background:#26364b;color:#c4d1e5}.empty{text-align:center;color:var(--muted);padding:35px}
+.notice{margin-top:16px;padding:13px 15px;border:1px solid #665126;background:#302714;color:#f7d98e;border-radius:12px;font-size:13px}
+.footer{color:var(--muted);font-size:12px;text-align:center;margin-top:22px}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.top{align-items:flex-start;flex-direction:column}}
+@media(max-width:430px){.wrap{padding:20px 13px 40px}.stats{gap:9px}.card{padding:13px}.num{font-size:24px}.panel{padding:13px}.field{min-width:130px;flex:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">P</div><div>PR.SOCIAL <div class="label">ORDERS CONTROL PANEL</div></div></div>
+    <span class="tag">● LOCAL DEMO</span>
+  </header>
+  <section>
+    <h1>Assigned Orders</h1>
+    <p class="sub">Monitor imported order records in one place.</p>
+  </section>
+  <section class="stats">
+    <div class="card"><div class="label">Total orders</div><div class="num blue" id="total">6</div></div>
+    <div class="card"><div class="label">Assigned</div><div class="num green" id="assigned">3</div></div>
+    <div class="card"><div class="label">Pending</div><div class="num amber" id="pending">1</div></div>
+    <div class="card"><div class="label">Other statuses</div><div class="num" id="other">2</div></div>
+  </section>
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Orders list</h2>
+      <div class="actions">
+        <button class="btn" id="sampleBtn">Load sample data</button>
+        <button class="btn primary" id="importBtn">Import JSON</button>
+        <input id="fileInput" type="file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+    <div class="panelhead">
+      <div class="filters">
+        <input class="field" id="search" type="search" placeholder="Search order or service ID…">
+        <select class="field" id="statusFilter">
+          <option value="all">All statuses</option><option value="assigned">Assigned</option>
+          <option value="pending">Pending</option><option value="processing">Processing</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <span class="label" id="shown">Showing 6 orders</span>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Order ID</th><th>Service ID</th><th>Status</th><th>Quantity</th><th>Created</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="empty" hidden>No matching orders. Import a JSON file or change your filters.</div>
+    </div>
+    <div class="notice"><strong>Important:</strong> This is a local dashboard demo using sample data. It does not connect to PR.SOCIAL or assign real orders. The <code>getOrders</code> endpoint may create assignments, so do not run it automatically or repeatedly. A secure server-side integration is required before connecting a real API token.</div>
+  </section>
+  <div class="footer">PR.SOCIAL Orders Dashboard • Demo data stays in this browser session</div>
+</div>
+<script>
+const sample = [
+ {order_id:10001,service_id:26,status:"assigned",quantity:100,created_at:"2026-11-06 09:15"},
+ {order_id:10002,service_id:26,status:"pending",quantity:250,created_at:"2026-11-06 09:22"},
+ {order_id:10003,service_id:26,status:"processing",quantity:500,created_at:"2026-11-06 10:03"},
+ {order_id:10004,service_id:26,status:"assigned",quantity:1000,created_at:"2026-11-06 10:18"},
+ {order_id:10005,service_id:26,status:"completed",quantity:150,created_at:"2026-11-06 11:40"},
+ {order_id:10006,service_id:26,status:"assigned",quantity:300,created_at:"2026-11-06 12:05"}
+];
+let orders = [...sample];
+const $ = id => document.getElementById(id);
+function normalizeStatus(value){const s=String(value||"unknown").toLowerCase();if(s.includes("assign"))return "assigned";if(s.includes("pend"))return "pending";if(s.includes("process"))return "processing";if(s.includes("complete")||s.includes("done"))return "completed";return s;}
+function render(){
+ const counts={assigned:0,pending:0,other:0};
+ orders.forEach(o=>{const s=normalizeStatus(o.status);if(s==="assigned")counts.assigned++;else if(s==="pending")counts.pending++;else counts.other++;});
+ $("total").textContent=orders.length;$("assigned").textContent=counts.assigned;$("pending").textContent=counts.pending;$("other").textContent=counts.other;
+ const q=$("search").value.trim().toLowerCase(), f=$("statusFilter").value;
+ const filtered=orders.filter(o=>{const s=normalizeStatus(o.status);return (f==="all"||s===f)&&(!q||String(o.order_id??o.id??"").toLowerCase().includes(q)||String(o.service_id??"").toLowerCase().includes(q));});
+ $("shown").textContent=`Showing ${filtered.length} of ${orders.length} orders`;
+ $("rows").innerHTML=filtered.map(o=>{const s=normalizeStatus(o.status);const id=o.order_id??o.id??"—";const date=o.created_at??o.created??"—";const qty=o.quantity??o.count??"—";return `<tr><td class="id">#${escapeHtml(id)}</td><td>${escapeHtml(o.service_id??"—")}</td><td><span class="status ${escapeHtml(s)}">${escapeHtml(s)}</span></td><td>${escapeHtml(qty)}</td><td>${escapeHtml(date)}</td></tr>`;}).join("");
+ $("empty").hidden=filtered.length!==0;
+}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+$("search").addEventListener("input",render);$("statusFilter").addEventListener("change",render);
+$("sampleBtn").addEventListener("click",()=>{orders=[...sample];render();});
+$("importBtn").addEventListener("click",()=>$("fileInput").click());
+$("fileInput").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const arr=Array.isArray(parsed)?parsed:(parsed.orders??parsed.data??parsed.result);if(!Array.isArray(arr))throw new Error("Expected a JSON array or an object containing an orders/data/result array.");orders=arr;render();}catch(err){alert("Could not import JSON: "+err.message);}e.target.value="";});
+render();
+</script>
+</body>
+</html>
